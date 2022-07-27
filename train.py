@@ -6,8 +6,8 @@ from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 
 from Datasets import create_dataloader
-# from ResNet_model import resnet50_true as Model    # 导入模型resnet50_true
-from ResNet_model import ResNet_C6_2 as Model    # 导入模型resnet50_true
+from ResNet_model import resnet50_true as Model    # 导入模型resnet50_true
+# from ResNet_model import ResNet_C6_2 as Model    # 导入模型resnet50_true
 
 from PIL import Image
 
@@ -103,13 +103,14 @@ def train(opt, device):
             if ema:
                 ema.update(model)
             
+            loss_item = loss.item()
             train_step += 1
             if train_step % 100 == 0:
                 end_time = time.time()
-                print('训练次数:{}，Loss:{}，训练时长:{}'.format(train_step, loss.item(), end_time - start_time))
+                print('训练次数:{}，Loss:{}，训练时长:{}'.format(train_step, loss_item, end_time - start_time))
                 
             # 训练损失的指数加权平均
-            mloss = (mloss * iter_id + loss.item()) / (iter_id + 1)
+            mloss = (mloss * iter_id + loss_item) / (iter_id + 1)
 
 
         # 测试步骤开始
@@ -176,8 +177,8 @@ def parse_opt(known=False):
 
 
     parser.add_argument('--epochs', type=int, default=48)
-    parser.add_argument('--batch-size', type=int, default=32, help='total batch size for all GPUs, -1 for autobatch')
-    parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(640,480), help='train, val image size (pixels)')
+    parser.add_argument('--batch-size', type=int, default=128, help='total batch size for all GPUs, -1 for autobatch')
+    parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
     # 是否使用混合精度训练，automatic mixed-precision training
     parser.add_argument('--is_MAP', action='store_true', default=True)
     # 是否使用模型平滑

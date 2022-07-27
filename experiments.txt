@@ -1,0 +1,8 @@
+exp0: 48epoch
+exp: 使用了EMA，比exp0精度略有提高，因此使用EMA
+exp3: EMA，img_size (640,320，可能图像尺寸设置错误)，精度提高不明显，可能是因为图像尺寸变太大，需要增加一个下采样层
+exp4: EMA，img_size (640, 480)
+exp5: EMA，img_size (640, 480), 增加一个下采样层C6，精度比exp4差太多
+exp6: exp4的重复，改进了val_loss的tensorboard
+exp7: exp5一样，增加一个下采样层，但是只采用最大池化，而不添加参数；精度和exp5差不太多，比exp4/exp6差太多，很奇怪的是，训练损失和exp6差不多，测试损失却差很多
+exp8: 验证的batch-size不再是训练的2倍，EMA，img_size (320, 240)

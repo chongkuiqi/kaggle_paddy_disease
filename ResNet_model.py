@@ -54,7 +54,6 @@ class BottleNeck(nn.Module):
         return out
 
 
-
 class resnet50_true(nn.Module):
     def __init__(self):
         super(resnet50_true, self).__init__()
