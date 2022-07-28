@@ -3,6 +3,10 @@ import torch
 import torch.nn as nn
 import torchvision
 
+CLASSES_NAME = ('bacterial_leaf_blight', 'bacterial_leaf_streak', 'bacterial_panicle_blight', 
+                'blast', 'brown_spot', 'dead_heart', 'downy_mildew', 'hispa',
+                'normal', 'tungro')
+
 # 用于resent50/101/152模型的block
 class BottleNeck(nn.Module):
     # 扩展，表示该残差块的输出通道数与输入通道数不同
@@ -57,9 +61,15 @@ class BottleNeck(nn.Module):
 class resnet50_true(nn.Module):
     def __init__(self):
         super(resnet50_true, self).__init__()
-        self.resnet50 = torchvision.models.resnet50(pretrained=True)
-        self.new_fc = nn.Linear(1000, 10)
 
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        
+        self.resnet50 = torchvision.models.resnet50(pretrained=True)
+        self.new_fc = nn.Linear(1000, self.num_classes)
+
+    
     def forward(self, x):
         
         return self.new_fc(self.resnet50(x))

@@ -6,6 +6,19 @@ import torch.nn as nn
 import math
 import torch
 import os
+import random
+import numpy as np
+
+def init_seeds(seed=0):
+    # Initialize random number generator (RNG) seeds https://pytorch.org/docs/stable/notes/randomness.html
+    # cudnn seed 0 settings are slower and more reproducible, else faster and less reproducible
+    import torch.backends.cudnn as cudnn
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    torch.manual_seed(seed)
+    ## cudnn.benchmark=False保证gpu每次都选择相同的算法，但是不保证该算法是deterministic的。
+    cudnn.benchmark, cudnn.deterministic = (False, True) if seed == 0 else (True, False)
 
 
 def is_parallel(model):

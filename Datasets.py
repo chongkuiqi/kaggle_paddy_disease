@@ -53,6 +53,7 @@ class TrainData(Dataset):
         # 根据图像路径获取图像
         img = Image.open(img_item_path)
         
+        # img [channel, H, W]
         img = self.trans_compose(img)
 
         # 获取图像标签（此处图像label为其文件夹名称）
@@ -60,6 +61,7 @@ class TrainData(Dataset):
         label = label_to_label[label]
         label = torch.tensor(label)
         # 返回图像与标签
+
         return img, label
 
     # 获取样本长度

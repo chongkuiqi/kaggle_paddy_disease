@@ -3,13 +3,14 @@
 # @Author : wzh
 # @File : train.py
 # @Softwafe : PyCharm
+from ast import Mod
 import time
 import torch
 from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 
-from dataset import TestData, id_to_label
-from ResNet_model import resnet50_true    # 导入模型resnet50_true
+from Datasets import TestData, id_to_label
+from ResNet_model import resnet50_true as Model   # 导入模型resnet50_true
 from torch.utils.data import DataLoader
 
 import tqdm
@@ -28,10 +29,10 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False,
 
 # 导入模型resnet50_true
 
-weights_path = "../resnet50_35.pth"
+weights_path = "runs/train/exp9/best.pt"
 ckpt = torch.load(weights_path, map_location=device)
-resnet50 = resnet50_true().to(device)
-resnet50.load_state_dict(ckpt.state_dict())
+resnet50 = Model().to(device)
+resnet50.load_state_dict(ckpt['model:'].state_dict())
 
 start_time = time.time()
 

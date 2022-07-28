@@ -15,18 +15,24 @@ from PIL import Image
 from torch.cuda import amp
 
 from pathlib import Path
-from general import increment_path, ModelEMA, select_device
+from general import increment_path, ModelEMA, select_device, init_seeds
 import sys
 import os
 import argparse
 import yaml
+from verification import val
+from loss import ComputeLoss
 
 def train(opt, device):
     print("训练设备：{}".format(device))
 
     weights, img_size, batch_size, epochs, is_MAP, is_EMA = opt.weights, opt.imgsz, opt.batch_size, opt.epochs, opt.is_MAP, opt.is_EMA
-
     save_dir, workers = opt.save_dir, opt.workers
+    loss_type = opt.loss_type
+
+
+    ## 首先确定随机种子, seed设置为0会关闭cudnn.benchmark，更有确定性和可复现性
+    init_seeds(seed=0)
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
@@ -36,7 +42,8 @@ def train(opt, device):
         yaml.safe_dump(vars(opt), f, sort_keys=False)
 
     # 最好的精度
-    best_accuracy = 0.0    
+    best_accuracy = 0.0   
+    best_epoch = 0 
 
     ## 构建模型
     model = Model().to(device)
@@ -50,12 +57,12 @@ def train(opt, device):
     train_root_dir = '../dataset/train_images'
     val_root_dir = '../dataset/val_images'
     train_dataloader, _ = create_dataloader(train_root_dir, img_size=img_size,shuffle=True, batch_size=batch_size, num_workers=workers)
-    val_dataloader, val_dataset = create_dataloader(val_root_dir, img_size=img_size, shuffle=False, batch_size=batch_size, num_workers=workers) 
+    val_dataloader, _ = create_dataloader(val_root_dir, img_size=img_size, shuffle=False, batch_size=batch_size, num_workers=workers) 
 
 
     # 构建损失函数
-    loss_fn = nn.CrossEntropyLoss()
-    loss_fn = loss_fn.to(device)
+    num_classes = model.num_classes
+    compute_loss = ComputeLoss(loss_type=loss_type, num_classes=num_classes)
 
 
     # 构建优化器
@@ -84,13 +91,14 @@ def train(opt, device):
         # 训练步骤开始
         model.train()
         for iter_id, data in enumerate(train_dataloader):
+            # targets shape [batch_size]
             imgs, targets = data
             imgs = imgs.to(device)
             targets = targets.to(device)
             with amp.autocast(enabled=is_MAP):
                 outputs = model(imgs)
                 # 整个batch的损失
-                loss = loss_fn(outputs, targets)
+                loss = compute_loss(outputs, targets)
 
             # 优化器优化模型
             optimizer.zero_grad()
@@ -113,56 +121,45 @@ def train(opt, device):
             mloss = (mloss * iter_id + loss_item) / (iter_id + 1)
 
 
-        # 测试步骤开始
-        total_val_loss = 0
-        total_num_TPs = 0
-        model.eval()
-        with torch.no_grad():
-            for data in val_dataloader:
-                imgs, targets = data
-                imgs = imgs.to(device)
-                targets = targets.to(device)
-                if ema:
-                    outputs = ema.ema(imgs)
-                else:
-                    outputs = model(imgs)
-                # 整个batch的损失
-                test_loss = loss_fn(outputs, targets)
-                total_val_loss += test_loss.item()
-                num_TPSs = (outputs.argmax(1) == targets).sum().item()
-                total_num_TPs += num_TPSs
-
-        test_accuracy = total_num_TPs / len(val_dataset)
-        
-        # 除以len(val_dataset)不对，因为损失函数设置为'mean'，即bathc的损失是该batch平均每张图像的损失
-        # 除以len(val_loader)才是平均一个batch的损失
-        mean_val_loss = total_val_loss / len(val_dataloader)
+        # 进行验证
+        mean_val_loss, total_accuracy, accuracy_classes = val(
+            ema.ema if ema else model,
+            val_dataloader,
+            device,
+            compute_loss
+        )
 
         print('整体测试集的Loss：{}'.format(mean_val_loss))
-        print('整体测试集的正确率：{}'.format(test_accuracy))
+        print('整体测试集的正确率：{}'.format(total_accuracy))
 
 
         ## 可视化
-        writer.add_scalar('train_loss', mloss, epoch)
-        writer.add_scalar('test_loss', mean_val_loss, epoch)
-        writer.add_scalar('test_accuracy', test_accuracy, epoch)
+        writer.add_scalar('train/loss', mloss, epoch)
+        writer.add_scalar('val/loss', mean_val_loss, epoch)
+        writer.add_scalar('metrics/total_accuracy', total_accuracy, epoch)
+        for class_name, accuracy_class in accuracy_classes.items():
+            writer.add_scalar('metrics/'+class_name, accuracy_class, epoch)
+
 
         ## 模型的保存
-        if test_accuracy > best_accuracy:
-            best_accuracy = test_accuracy
+        if total_accuracy > best_accuracy:
+            best_accuracy = total_accuracy
+            best_epoch = epoch
 
         ckpt = {
-            'model:': ema.ema if ema else model,
+            'model': ema.ema if ema else model,
             'best_accuracy': best_accuracy,
             'epoch':epoch,
         }
 
         torch.save(ckpt, save_dir+'/last.pt')
-        if best_accuracy == test_accuracy:
+        if best_accuracy == total_accuracy:
             torch.save(ckpt, save_dir+'/best.pt')
         
-        print("模型已保存")
 
+        print("模型已保存")
+    
+    print(f"best_accuracy:{best_accuracy}, best_epoch:{best_epoch}")
     writer.close()
 
 
@@ -175,6 +172,7 @@ def parse_opt(known=False):
 
     parser.add_argument('--data', type=str, default='./data/LAR1024.yaml', help='dataset.yaml path')
 
+    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='focal_loss', help='optimizer')
 
     parser.add_argument('--epochs', type=int, default=48)
     parser.add_argument('--batch-size', type=int, default=128, help='total batch size for all GPUs, -1 for autobatch')
