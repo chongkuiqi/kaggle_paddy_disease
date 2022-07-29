@@ -58,6 +58,7 @@ class BottleNeck(nn.Module):
         return out
 
 
+
 class ResNet(nn.Module):
     def __init__(self):
         super().__init__()
@@ -66,14 +67,47 @@ class ResNet(nn.Module):
         
         self.num_classes = len(self.classes_name)
         
-        self.net = torchvision.models.resnet50(pretrained=True)
-        self.new_fc = nn.Linear(1000, self.num_classes)
+        net = torchvision.models.resnet50(pretrained=True)
+        self.new_fc = nn.Linear(2048, self.num_classes)
+        self.net = nn.Sequential(
+            net.conv1,
+            net.bn1,
+            net.relu,
+            net.maxpool,
+            net.layer1,
+            net.layer2,
+            net.layer3,
+            net.layer4,
+            net.avgpool,
+        )
+
+        del net
 
     
     def forward(self, x):
         
-        return self.new_fc(self.net(x))
+        x = self.net(x)
+        x = torch.flatten(x, 1)
+        x = self.new_fc(x)
 
+        return x
+
+class ResNet_2_fc(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        
+        self.net = torchvision.models.resnet50(pretrained=True)
+        self.new_relu = nn.ReLU(inplace=True)
+        self.new_fc = nn.Linear(1000, self.num_classes)
+        
+    
+    def forward(self, x):
+        
+        return self.new_fc(self.new_relu(self.net(x)))
 
 
 class ResNeXt(nn.Module):
@@ -112,9 +146,46 @@ class WideResNet(nn.Module):
 
 
 # 具有6x下采样的ResNet网络
+class ResNet_C6_2(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        
+        net = torchvision.models.resnet50(pretrained=True)
+        maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.new_fc = nn.Linear(2048, self.num_classes)
+        self.net = nn.Sequential(
+            net.conv1,
+            net.bn1,
+            net.relu,
+            net.maxpool,
+            net.layer1,
+            net.layer2,
+            net.layer3,
+            net.layer4,
+            maxpool,
+            net.avgpool,
+        )
+
+        del net
+
+    
+    def forward(self, x):
+        
+        x = self.net(x)
+        x = torch.flatten(x, 1)
+        x = self.new_fc(x)
+
+        return x
+
+
+# 具有6x下采样的ResNet网络
 class ResNet_C6(nn.Module):
     def __init__(self):
-        super(ResNet_C6, self).__init__()
+        super().__init__()
         resnet50 = torchvision.models.resnet50(pretrained=True)
         self.fc = resnet50.fc
         self.new_fc = nn.Linear(1000, 10)
@@ -165,38 +236,6 @@ class ResNet_C6(nn.Module):
             layers.append(block(self.inplanes, plane))
 
         return nn.Sequential(*layers)
-
-
-    def forward(self, x):
-        
-        x = self.resnet(x)
-        x = torch.flatten(x, 1)
-        x = self.new_fc(self.fc(x))
-
-        return x
-
-
-# 具有6x下采样的ResNet网络
-class ResNet_C6_2(nn.Module):
-    def __init__(self):
-        super(ResNet_C6_2, self).__init__()
-        resnet50 = torchvision.models.resnet50(pretrained=True)
-        self.fc = resnet50.fc
-        self.new_fc = nn.Linear(1000, 10)
-        maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-
-
-        self.resnet = nn.Sequential(
-            nn.Sequential(resnet50.conv1, resnet50.bn1,resnet50.relu),  # C1
-            nn.Sequential(resnet50.maxpool, resnet50.layer1),  # C2  
-            resnet50.layer2,  # C3
-            resnet50.layer3,  # C4
-            resnet50.layer4,  # C5
-            maxpool,
-            resnet50.avgpool,
-        )
-
-        del resnet50
 
 
     def forward(self, x):

@@ -21,6 +21,17 @@ exp17: exp14的重复,seed=0. best_accuracy:0.9292347102145373, best_epoch:27
 exp18: exp15的重复,seed=0. best_accuracy:0.9026577009285943, best_epoch:41                                                                                            best_accuracy:0.9026577009285943, best_epoch:41
 
 exp20：exp16的重复,resnext50_32x4d,batch-size=64。  best_accuracy:0.9503682356708293, best_epoch:36
-exp21: exp16的重复,resnext101_32x8d,batch-size=32
+exp21: exp16的重复,resnext101_32x8d,batch-size=32   best_accuracy:0.9081011847582453, best_epoch:46
 exp22: exp16的重复, WideResNet, batch-size=64       best_accuracy:0.8693563880883766, best_epoch:46。精度太低，放弃
+
+exp23: exp16的重复, seed=1, softmax, 去掉原始的全连接层，新增(2048,10)全连接层。best_accuracy:0.952609670188921, best_epoch:38。训练很稳定！！
+exp24: seed=1, softmax, (2048,10)全连接层, 36epoch。best_accuracy:0.9404418828049952, best_epoch:26. 和exp2相比很不好，精度跳动非常大
+exp25: seed=1, softmax, (2048,10)全连接层, 36epoch, img_size (640, 480), batch-size=32
+exp26: seed=1, softmax, (2048,10)全连接层, 36epoch, img_size (640, 480), batch-size=32, 新增下采样层(最大池化)
+
+
+exp27: 与exp23对比, seed=1, softmax, 原始全连接层加ReLU, 新增(1000,10)全连接层, 48epoch, img_size (320,240)
+
+exp28: exp23的重复试验. seed=1, softmax, 新增(2048,10)全连接层, 48epoch, img_size (320,240)。为了验证exp24的震荡是否是48epoch造成的
+
 

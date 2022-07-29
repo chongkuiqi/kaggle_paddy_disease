@@ -6,8 +6,10 @@ from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 
 from Datasets import create_dataloader
-from classify_model import resnet50_true as Model    # 导入模型resnet50_true
+from classify_model import ResNet as Model    # 导入模型resnet50_true
 # from classify_model import ResNet_C6_2 as Model    
+# from classify_model import ResNet_2_fc as Model    
+
 # from classify_model import ResNeXt as Model    
 # from classify_model import WideResNet as Model    
 
@@ -180,8 +182,9 @@ def parse_opt(known=False):
     parser.add_argument('--seed', type=int, default=1)
 
     parser.add_argument('--epochs', type=int, default=48)
-    parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
+    parser.add_argument('--batch-size', type=int, default=128, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
+    
     # 是否使用混合精度训练，automatic mixed-precision training
     parser.add_argument('--is_MAP', action='store_true', default=True)
     # 是否使用模型平滑
