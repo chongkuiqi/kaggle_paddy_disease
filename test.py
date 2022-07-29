@@ -7,10 +7,10 @@ from ast import Mod
 import time
 import torch
 from torch import nn
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 from Datasets import TestData, id_to_label
-from ResNet_model import resnet50_true as Model   # 导入模型resnet50_true
+from classify_model import resnet50_true as Model   # 导入模型resnet50_true
 from torch.utils.data import DataLoader
 
 import tqdm

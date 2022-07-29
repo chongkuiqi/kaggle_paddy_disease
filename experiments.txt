@@ -1,17 +1,26 @@
 exp0: 48epoch
-exp: 使用了EMA，比exp0精度略有提高，因此使用EMA
-exp3: EMA，img_size (640,320，可能图像尺寸设置错误)，精度提高不明显，可能是因为图像尺寸变太大，需要增加一个下采样层
-exp4: EMA，img_size (640, 480)
-exp5: EMA，img_size (640, 480), 增加一个下采样层C6，精度比exp4差太多
-exp6: exp4的重复，改进了val_loss的tensorboard
-exp7: exp5一样，增加一个下采样层，但是只采用最大池化，而不添加参数；精度和exp5差不太多，比exp4/exp6差太多，很奇怪的是，训练损失和exp6差不多，测试损失却差很多
-exp8: 验证的batch-size不再是训练的2倍，EMA，img_size (320, 240)，和exp6/exp4差不太多，所以还是先放弃(640,480)
+exp: 使用了EMA,比exp0精度略有提高,因此使用EMA
+exp3: EMA,img_size (640,320,可能图像尺寸设置错误),精度提高不明显,可能是因为图像尺寸变太大,需要增加一个下采样层
+exp4: EMA,img_size (640, 480)
+exp5: EMA,img_size (640, 480), 增加一个下采样层C6,精度比exp4差太多
+exp6: exp4的重复,改进了val_loss的tensorboard
+exp7: exp5一样,增加一个下采样层,但是只采用最大池化,而不添加参数；精度和exp5差不太多,比exp4/exp6差太多,很奇怪的是,训练损失和exp6差不多,测试损失却差很多
+exp8: 验证的batch-size不再是训练的2倍,EMA,img_size (320, 240),和exp6/exp4差不太多,所以还是先放弃(640,480)
 
-exp9: exp8的基础上加上了随机种子，看看复现性，最高0.951
-exp10: 和exp9一模一样，看看复现性。最高0.9484。实验结果表明，exp9和exp10完全不一样，因为没有设置cudnn.benchmark, cudnn.deterministic为可复现性
-exp11: exp9的基础上，设置cudnn.benchmark, cudnn.deterministic为可复现性
-exp12: 和exp11 完全一样。  exp11和exp12的损失、精度曲线完全一致，完美复现。0.9244，精度很低，比exp9/10低多了
+exp9: exp8的基础上加上了随机种子,看看复现性,最高0.951
+exp10: 和exp9一模一样,看看复现性。最高0.9484。实验结果表明,exp9和exp10完全不一样,因为没有设置cudnn.benchmark, cudnn.deterministic为可复现性
+exp11: exp9的基础上,设置cudnn.benchmark, cudnn.deterministic为可复现性
+exp12: 和exp11 完全一样。  exp11和exp12的损失、精度曲线完全一致,完美复现。0.9244,精度很低,比exp9/10低多了
 
-exp13: 和exp11一样，把各个类别的准确率都打印出来. best_accuracy:0.9244316362471982, best_epoch:46
-exp14: BCE损失，best_accuracy:0.9301953250080052, best_epoch:29
-exp15: focal-loss，best_accuracy:0.9196285622798591, best_epoch:40
+exp13: 和exp11一样,把各个类别的准确率都打印出来. best_accuracy:0.9244316362471982, best_epoch:46
+exp14: BCE损失,best_accuracy:0.9301953250080052, best_epoch:29
+exp15: focal-loss,best_accuracy:0.9196285622798591, best_epoch:40
+
+exp16：exp13的重复,seed=0. best_accuracy:0.9484470060838937, best_epoch:21
+exp17: exp14的重复,seed=0. best_accuracy:0.9292347102145373, best_epoch:27
+exp18: exp15的重复,seed=0. best_accuracy:0.9026577009285943, best_epoch:41                                                                                            best_accuracy:0.9026577009285943, best_epoch:41
+
+exp20：exp16的重复,resnext50_32x4d,batch-size=64。  best_accuracy:0.9503682356708293, best_epoch:36
+exp21: exp16的重复,resnext101_32x8d,batch-size=32
+exp22: exp16的重复, WideResNet, batch-size=64       best_accuracy:0.8693563880883766, best_epoch:46。精度太低，放弃
+

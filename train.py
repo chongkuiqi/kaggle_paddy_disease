@@ -6,8 +6,11 @@ from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 
 from Datasets import create_dataloader
-from ResNet_model import resnet50_true as Model    # 导入模型resnet50_true
-# from ResNet_model import ResNet_C6_2 as Model    # 导入模型resnet50_true
+from classify_model import resnet50_true as Model    # 导入模型resnet50_true
+# from classify_model import ResNet_C6_2 as Model    
+# from classify_model import ResNeXt as Model    
+# from classify_model import WideResNet as Model    
+
 
 from PIL import Image
 
@@ -29,10 +32,11 @@ def train(opt, device):
     weights, img_size, batch_size, epochs, is_MAP, is_EMA = opt.weights, opt.imgsz, opt.batch_size, opt.epochs, opt.is_MAP, opt.is_EMA
     save_dir, workers = opt.save_dir, opt.workers
     loss_type = opt.loss_type
+    seed = opt.seed
 
 
     ## 首先确定随机种子, seed设置为0会关闭cudnn.benchmark，更有确定性和可复现性
-    init_seeds(seed=0)
+    init_seeds(seed=seed)
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
@@ -172,10 +176,11 @@ def parse_opt(known=False):
 
     parser.add_argument('--data', type=str, default='./data/LAR1024.yaml', help='dataset.yaml path')
 
-    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='focal_loss', help='optimizer')
+    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='softmax', help='optimizer')
+    parser.add_argument('--seed', type=int, default=1)
 
     parser.add_argument('--epochs', type=int, default=48)
-    parser.add_argument('--batch-size', type=int, default=128, help='total batch size for all GPUs, -1 for autobatch')
+    parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
     # 是否使用混合精度训练，automatic mixed-precision training
     parser.add_argument('--is_MAP', action='store_true', default=True)

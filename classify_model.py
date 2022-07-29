@@ -58,21 +58,58 @@ class BottleNeck(nn.Module):
         return out
 
 
-class resnet50_true(nn.Module):
+class ResNet(nn.Module):
     def __init__(self):
-        super(resnet50_true, self).__init__()
+        super().__init__()
 
         self.classes_name = CLASSES_NAME
         
         self.num_classes = len(self.classes_name)
         
-        self.resnet50 = torchvision.models.resnet50(pretrained=True)
+        self.net = torchvision.models.resnet50(pretrained=True)
         self.new_fc = nn.Linear(1000, self.num_classes)
 
     
     def forward(self, x):
         
-        return self.new_fc(self.resnet50(x))
+        return self.new_fc(self.net(x))
+
+
+
+class ResNeXt(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        
+        # self.net = torchvision.models.resnext50_32x4d(pretrained=True)
+        self.net = torchvision.models.resnext101_32x8d(pretrained=True)
+        self.new_fc = nn.Linear(1000, self.num_classes)
+
+    
+    def forward(self, x):
+        
+        return self.new_fc(self.net(x))
+
+
+class WideResNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        
+        self.net = torchvision.models.wide_resnet50_2(pretrained=True)
+        self.new_fc = nn.Linear(1000, self.num_classes)
+
+    
+    def forward(self, x):
+        
+        return self.new_fc(self.net(x))
+
 
 # 具有6x下采样的ResNet网络
 class ResNet_C6(nn.Module):
