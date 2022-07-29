@@ -178,7 +178,7 @@ def parse_opt(known=False):
 
     parser.add_argument('--data', type=str, default='./data/LAR1024.yaml', help='dataset.yaml path')
 
-    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='softmax', help='optimizer')
+    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='focal_loss', help='optimizer')
     parser.add_argument('--seed', type=int, default=1)
 
     parser.add_argument('--epochs', type=int, default=48)

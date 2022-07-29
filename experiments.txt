@@ -7,7 +7,7 @@ exp6: exp4的重复,改进了val_loss的tensorboard
 exp7: exp5一样,增加一个下采样层,但是只采用最大池化,而不添加参数；精度和exp5差不太多,比exp4/exp6差太多,很奇怪的是,训练损失和exp6差不多,测试损失却差很多
 exp8: 验证的batch-size不再是训练的2倍,EMA,img_size (320, 240),和exp6/exp4差不太多,所以还是先放弃(640,480)
 
-exp9: exp8的基础上加上了随机种子,看看复现性,最高0.951
+*exp9: exp8的基础上加上了随机种子,看看复现性,最高0.951
 exp10: 和exp9一模一样,看看复现性。最高0.9484。实验结果表明,exp9和exp10完全不一样,因为没有设置cudnn.benchmark, cudnn.deterministic为可复现性
 exp11: exp9的基础上,设置cudnn.benchmark, cudnn.deterministic为可复现性
 exp12: 和exp11 完全一样。  exp11和exp12的损失、精度曲线完全一致,完美复现。0.9244,精度很低,比exp9/10低多了
@@ -18,20 +18,25 @@ exp15: focal-loss,best_accuracy:0.9196285622798591, best_epoch:40
 
 exp16：exp13的重复,seed=0. best_accuracy:0.9484470060838937, best_epoch:21
 exp17: exp14的重复,seed=0. best_accuracy:0.9292347102145373, best_epoch:27
-exp18: exp15的重复,seed=0. best_accuracy:0.9026577009285943, best_epoch:41                                                                                            best_accuracy:0.9026577009285943, best_epoch:41
+exp18: exp15的重复,seed=0. best_accuracy:0.9026577009285943, best_epoch:41   
 
 exp20：exp16的重复,resnext50_32x4d,batch-size=64。  best_accuracy:0.9503682356708293, best_epoch:36
 exp21: exp16的重复,resnext101_32x8d,batch-size=32   best_accuracy:0.9081011847582453, best_epoch:46
 exp22: exp16的重复, WideResNet, batch-size=64       best_accuracy:0.8693563880883766, best_epoch:46。精度太低，放弃
 
-exp23: exp16的重复, seed=1, softmax, 去掉原始的全连接层，新增(2048,10)全连接层。best_accuracy:0.952609670188921, best_epoch:38。训练很稳定！！
+*exp23: exp16的重复, seed=1, softmax, 去掉原始的全连接层，新增(2048,10)全连接层。best_accuracy:0.952609670188921, best_epoch:38。训练很稳定！！
 exp24: seed=1, softmax, (2048,10)全连接层, 36epoch。best_accuracy:0.9404418828049952, best_epoch:26. 和exp2相比很不好，精度跳动非常大
-exp25: seed=1, softmax, (2048,10)全连接层, 36epoch, img_size (640, 480), batch-size=32
-exp26: seed=1, softmax, (2048,10)全连接层, 36epoch, img_size (640, 480), batch-size=32, 新增下采样层(最大池化)
+exp25: seed=1, softmax, (2048,10)全连接层, 36epoch, img_size (640, 480), batch-size=32, best_accuracy:0.9292347102145373, best_epoch:33
+exp26: seed=1, softmax, (2048,10)全连接层, 36epoch, img_size (640, 480), batch-size=32, 新增下采样层(最大池化),best_accuracy:0.9016970861351264, best_epoch:26
 
 
-exp27: 与exp23对比, seed=1, softmax, 原始全连接层加ReLU, 新增(1000,10)全连接层, 48epoch, img_size (320,240)
+exp27: 与exp23对比, seed=1, softmax, 原始全连接层加ReLU, 新增(1000,10)全连接层, 48epoch, img_size (320,240). best_accuracy:0.9263528658341339, best_epoch:43。由此彻底放弃加fc层的想法
 
-exp28: exp23的重复试验. seed=1, softmax, 新增(2048,10)全连接层, 48epoch, img_size (320,240)。为了验证exp24的震荡是否是48epoch造成的
+exp28: exp23的重复试验. seed=1, softmax, 新增(2048,10)全连接层, 48epoch, img_size (320,240)。为了验证exp24的震荡是否是48epoch造成的.best_accuracy:0.9503682356708293, best_epoch:38. 训练曲线很稳定，很好，算是复现成功
 
+exp29: exp24的重复. best_accuracy:0.9487672110150497, best_epoch:35 和exp24一样, 波动很大, 因此还是采用48epoch
 
+exp30: exp23的基础, resnext50_32x4d,batch-size=64
+exp31: exp23的基础, WideResNet,batch-size=64
+exp30: exp23的基础, BCE损失,
+exp31: exp23的基础, focal_loss损失

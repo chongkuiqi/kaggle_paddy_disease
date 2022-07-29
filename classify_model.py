@@ -92,23 +92,6 @@ class ResNet(nn.Module):
 
         return x
 
-class ResNet_2_fc(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        self.classes_name = CLASSES_NAME
-        
-        self.num_classes = len(self.classes_name)
-        
-        self.net = torchvision.models.resnet50(pretrained=True)
-        self.new_relu = nn.ReLU(inplace=True)
-        self.new_fc = nn.Linear(1000, self.num_classes)
-        
-    
-    def forward(self, x):
-        
-        return self.new_fc(self.new_relu(self.net(x)))
-
 
 class ResNeXt(nn.Module):
     def __init__(self):
@@ -118,14 +101,32 @@ class ResNeXt(nn.Module):
         
         self.num_classes = len(self.classes_name)
         
-        # self.net = torchvision.models.resnext50_32x4d(pretrained=True)
-        self.net = torchvision.models.resnext101_32x8d(pretrained=True)
-        self.new_fc = nn.Linear(1000, self.num_classes)
+        net = torchvision.models.resnext50_32x4d(pretrained=True)
+        # self.net = torchvision.models.resnext101_32x8d(pretrained=True)
+        self.new_fc = nn.Linear(2048, self.num_classes)
+        self.net = nn.Sequential(
+            net.conv1,
+            net.bn1,
+            net.relu,
+            net.maxpool,
+            net.layer1,
+            net.layer2,
+            net.layer3,
+            net.layer4,
+            net.avgpool,
+        )
+
+        del net
+
 
     
     def forward(self, x):
         
-        return self.new_fc(self.net(x))
+        x = self.net(x)
+        x = torch.flatten(x, 1)
+        x = self.new_fc(x)
+
+        return x
 
 
 class WideResNet(nn.Module):
@@ -136,13 +137,30 @@ class WideResNet(nn.Module):
         
         self.num_classes = len(self.classes_name)
         
-        self.net = torchvision.models.wide_resnet50_2(pretrained=True)
-        self.new_fc = nn.Linear(1000, self.num_classes)
+        net = torchvision.models.wide_resnet50_2(pretrained=True)
+        self.new_fc = nn.Linear(2048, self.num_classes)
+        self.net = nn.Sequential(
+            net.conv1,
+            net.bn1,
+            net.relu,
+            net.maxpool,
+            net.layer1,
+            net.layer2,
+            net.layer3,
+            net.layer4,
+            net.avgpool,
+        )
+
+        del net
 
     
     def forward(self, x):
         
-        return self.new_fc(self.net(x))
+        x = self.net(x)
+        x = torch.flatten(x, 1)
+        x = self.new_fc(x)
+
+        return x
 
 
 # 具有6x下采样的ResNet网络
@@ -245,3 +263,20 @@ class ResNet_C6(nn.Module):
         x = self.new_fc(self.fc(x))
 
         return x
+
+class ResNet_2_fc(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        
+        self.net = torchvision.models.resnet50(pretrained=True)
+        self.new_relu = nn.ReLU(inplace=True)
+        self.new_fc = nn.Linear(1000, self.num_classes)
+        
+    
+    def forward(self, x):
+        
+        return self.new_fc(self.new_relu(self.net(x)))
