@@ -10,8 +10,10 @@ from Datasets import create_dataloader
 # from classify_model import ResNet_C6_2 as Model    
 # from classify_model import ResNet_2_fc as Model    
 
-from classify_model import ResNeXt as Model    
+# from classify_model import ResNeXt as Model    
 # from classify_model import WideResNet as Model    
+
+from classify_model import ConvNext as Model    
 
 
 from PIL import Image
@@ -178,11 +180,11 @@ def parse_opt(known=False):
 
     parser.add_argument('--data', type=str, default='./data/LAR1024.yaml', help='dataset.yaml path')
 
-    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='focal_loss', help='optimizer')
+    parser.add_argument('--loss-type', type=str, choices=['softmax', 'BCE', 'focal_loss'], default='softmax', help='optimizer')
     parser.add_argument('--seed', type=int, default=1)
 
     parser.add_argument('--epochs', type=int, default=48)
-    parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
+    parser.add_argument('--batch-size', type=int, default=32, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
     
     # 是否使用混合精度训练，automatic mixed-precision training

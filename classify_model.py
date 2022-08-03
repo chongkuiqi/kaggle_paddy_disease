@@ -1,7 +1,9 @@
 # -*- codeing = utf-8 -*-
+from turtle import forward
 import torch
 import torch.nn as nn
 import torchvision
+import timm
 
 CLASSES_NAME = ('bacterial_leaf_blight', 'bacterial_leaf_streak', 'bacterial_panicle_blight', 
                 'blast', 'brown_spot', 'dead_heart', 'downy_mildew', 'hispa',
@@ -280,3 +282,17 @@ class ResNet_2_fc(nn.Module):
     def forward(self, x):
         
         return self.new_fc(self.new_relu(self.net(x)))
+
+class ConvNext(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.classes_name = CLASSES_NAME
+        
+        self.num_classes = len(self.classes_name)
+        self.net = timm.create_model('convnext_base_in22k', pretrained=True, num_classes=self.num_classes)
+
+    def forward(self, x):
+
+        return self.net(x)
+
