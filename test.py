@@ -11,14 +11,15 @@ from torch import nn
 
 from Datasets import TestData, id_to_label
 # from classify_model import ResNet as Model   # 
-from classify_model import ResNeXt as Model   # 
+# from classify_model import ResNeXt as Model   # 
+from classify_model import EfficientNet as Model   # 
 
 from torch.utils.data import DataLoader
 
 import tqdm
 
 # 定义训练设备
-device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:3' if torch.cuda.is_available() else 'cpu')
 print("训练设备：{}".format(device))
 
 # 构建训练集和验证集
@@ -31,7 +32,7 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False,
 
 # 导入模型resnet50_true
 
-weights_path = "runs/train/exp30/best.pt"
+weights_path = "runs/train/exp47/best.pt"
 ckpt = torch.load(weights_path, map_location=device)
 resnet50 = Model().to(device)
 resnet50.load_state_dict(ckpt['model'].state_dict())

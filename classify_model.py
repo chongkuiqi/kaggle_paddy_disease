@@ -15,9 +15,12 @@ class ResNet(nn.Module):
         self.classes_name = CLASSES_NAME
         
         self.num_classes = len(self.classes_name)
-        
+
         net = torchvision.models.resnet50(weights='IMAGENET1K_V2')
         self.new_fc = nn.Linear(2048, self.num_classes)
+        # net = torchvision.models.resnet34(weights='IMAGENET1K_V1')
+        # self.new_fc = nn.Linear(1024, self.num_classes)
+
         self.net = nn.Sequential(
             net.conv1,
             net.bn1,
@@ -110,8 +113,10 @@ class EfficientNet(nn.Module):
         
         self.num_classes = len(self.classes_name)
         
-        net = torchvision.models.efficientnet_v2_s(weights='IMAGENET1K_V1')
-        self.new_fc = nn.Linear(1280, self.num_classes)
+        # net = torchvision.models.efficientnet_v2_s(weights='IMAGENET1K_V1')
+        # self.new_fc = nn.Linear(1280, self.num_classes)
+        net = torchvision.models.efficientnet_b3(weights='IMAGENET1K_V1')
+        self.new_fc = nn.Linear(1536, self.num_classes)
         
         self.classifier = net.classifier[:-1]
 

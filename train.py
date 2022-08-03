@@ -1,6 +1,6 @@
 # -*- codeing = utf-8 -*-
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 import time
 import torch
@@ -20,12 +20,13 @@ from classify_model import ResNeXt as Model
 # from classify_model import ResNet_2_fc as Model    
 # 
 
+from torch.optim import SGD, Adam, lr_scheduler
 
 # 混合精度训练
 from torch.cuda import amp
 
 from pathlib import Path
-from general import increment_path, ModelEMA, select_device, init_seeds
+from general import increment_path, ModelEMA, select_device, init_seeds, one_cycle
 
 import argparse
 import yaml
@@ -81,7 +82,19 @@ def train(opt, device):
 
     # 构建优化器
     learning_rate = 1e-3
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    if opt.optimizer == 'Adam':
+        optimizer = Adam(model.parameters(), lr=learning_rate) # adjust beta1 to momentum
+    else:
+        optimizer = SGD(model.parameters(), lr=learning_rate, momentum=0.9, nesterov=True)
+    
+
+    # Scheduler
+    lrf = 0.1
+    if opt.lr_scheduler == 'linear':
+        lf = lambda x: (1 - x / (epochs - 1)) * (1.0 - lrf) + lrf  # linear
+    else:
+        lf = one_cycle(1, lrf, epochs)  # cosine 1->hyp['lrf']
+    scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)  # plot_lr_scheduler(optimizer, scheduler, epochs)
     
 
     # tensorboard显示训练情况
@@ -93,7 +106,7 @@ def train(opt, device):
 
     # 训练参数设置
     train_step = 0
-
+    scheduler.last_epoch = -1  # do not move
     scaler = amp.GradScaler(enabled=is_MAP)
     start_time = time.time()
     # 开始训练
@@ -134,6 +147,9 @@ def train(opt, device):
             # 训练损失的指数加权平均
             mloss = (mloss * iter_id + loss_item) / (iter_id + 1)
 
+        lr = optimizer.param_groups[0]['lr']
+        writer.add_scalar('lr/lr', lr, epoch)
+        scheduler.step()
 
         # 进行验证
         mean_val_loss, total_accuracy, accuracy_classes = val(
@@ -192,7 +208,9 @@ def parse_opt(known=False):
     parser.add_argument('--epochs', type=int, default=48)
     parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
-    
+    parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='SGD', help='optimizer')
+    parser.add_argument('--lr-scheduler', type=str, choices=['consine', 'linear'], default="consine", help='lr-scheduler')
+
     # 是否使用混合精度训练，automatic mixed-precision training
     parser.add_argument('--is_MAP', action='store_true', default=True)
     # 是否使用模型平滑
@@ -208,8 +226,6 @@ def parse_opt(known=False):
 
 
 
-    # 学习率衰减方案，只有三种，余弦、线性、阶段
-    parser.add_argument('--lr-scheduler', type=str, default="step", help='lr-scheduler')
     # 梯度裁剪    
     parser.add_argument('--grad-clip', action='store_true', default=True, help='Gradient clipping')
 
@@ -225,7 +241,6 @@ def parse_opt(known=False):
 
 
     parser.add_argument('--multi-scale', action='store_true', help='vary img-size +/- 50%%')
-    parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='SGD', help='optimizer')
 
     parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
     

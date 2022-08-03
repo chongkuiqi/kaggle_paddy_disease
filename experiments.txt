@@ -53,4 +53,12 @@ exp41: exp30的基础, convnext_tiny, batch-size=32, softmax损失. best_accurac
 
 exp42: exp40的重复, 很不正常，因为损失根本不下降，但不管了. best_accuracy:0.8757604867114953, best_epoch:47
 exp43: exp30的基础, efficientnet_v2_s, batch-size=64, softmax损失. best_accuracy:0.9606147934678194, best_epoch:24. 
+* exp44: exp30的基础, efficientnet_b4, batch-size=64, softmax损失. best_accuracy:0.9663784822286263, best_epoch:38 精度高，但是训练很不稳定
+exp45: exp30的基础, efficientnet_b4, batch-size=64, softmax损失. best_accuracy:0.9660582772974704, best_epoch:32
+
+exp46: exp30的基础, resnet34, batch-size=32, softmax损失. best_accuracy:0.9650976625040025, best_epoch:42
+
+* exp47: exp30的基础, efficientnet_b3, batch-size=64, softmax损失. best_accuracy:0.968299711815562, best_epoch:42
+
+exp47: exp38的重复, 使用SGD和余弦衰减策略
 
