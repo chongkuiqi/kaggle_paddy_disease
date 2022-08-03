@@ -1,34 +1,38 @@
 # -*- codeing = utf-8 -*-
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
 import time
 import torch
-from torch import nn
 from torch.utils.tensorboard import SummaryWriter
 
 from Datasets import create_dataloader
-# from classify_model import ResNet as Model    # 导入模型resnet50_true
+# from classify_model import ResNet as Model   
+from classify_model import ResNeXt as Model    
+
+
+# from classify_model import ConvNext as Model    
+
+# from classify_model import EfficientNet as Model    
+
+# from classify_model import WideResNet as Model    
 # from classify_model import ResNet_C6_2 as Model    
 # from classify_model import ResNet_2_fc as Model    
+# 
 
-# from classify_model import ResNeXt as Model    
-# from classify_model import WideResNet as Model    
-
-from classify_model import ConvNext as Model    
-
-
-from PIL import Image
 
 # 混合精度训练
 from torch.cuda import amp
 
 from pathlib import Path
 from general import increment_path, ModelEMA, select_device, init_seeds
-import sys
-import os
+
 import argparse
 import yaml
 from verification import val
 from loss import ComputeLoss
+
+
 
 def train(opt, device):
     print("训练设备：{}".format(device))
@@ -59,7 +63,9 @@ def train(opt, device):
         ckpt = torch.load(weights, map_location='cpu')
 
         model.load_state_dict(ckpt['model'].float().state_dict())
-        
+
+    # for k,v in model.named_parameters():
+    #     print(k, v.requires_grad)        
 
     # 构建训练集和验证集
     train_root_dir = '../dataset/train_images'
@@ -184,7 +190,7 @@ def parse_opt(known=False):
     parser.add_argument('--seed', type=int, default=1)
 
     parser.add_argument('--epochs', type=int, default=48)
-    parser.add_argument('--batch-size', type=int, default=32, help='total batch size for all GPUs, -1 for autobatch')
+    parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
     
     # 是否使用混合精度训练，automatic mixed-precision training

@@ -44,5 +44,13 @@ exp33: exp23的基础, focal_loss损失. best_accuracy:0.9500480307396734, best_
 exp34: exp30的基础, resnext50_32x4d,batch-size=64, BCE损失. best_accuracy:0.952609670188921, best_epoch:44
 exp35: exp30的基础, resnext50_32x4d,batch-size=64, focal_loss损失. best_accuracy:0.9545308997758566, best_epoch:21
 
-exp36: exp30的基础, convnext, batch-size=32, softmax损失. best_accuracy:0.9244316362471982, best_epoch:43. 精度比exp30低，放弃
+exp37: exp30的基础, convnext_base, batch-size=32, softmax损失. best_accuracy:0.9244316362471982, best_epoch:43. 精度比exp30低，放弃
+
+*exp38: exp30的基础, resnext50_32x4d, 使用了IMAGENET_V2预训练模型. best_accuracy:0.9644572526416907, best_epoch:42. 比exp30精度高
+exp39: exp30的基础, convnext_base, batch-size=32, softmax损失. best_accuracy:0.9545308997758566, best_epoch:38
+exp40: exp30的基础, convnext_small, batch-size=32, softmax损失
+exp41: exp30的基础, convnext_tiny, batch-size=32, softmax损失. best_accuracy:0.9599743836055076, best_epoch:47
+
+exp42: exp40的重复, 很不正常，因为损失根本不下降，但不管了. best_accuracy:0.8757604867114953, best_epoch:47
+exp43: exp30的基础, efficientnet_v2_s, batch-size=64, softmax损失. best_accuracy:0.9606147934678194, best_epoch:24. 
 
