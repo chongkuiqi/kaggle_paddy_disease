@@ -1,6 +1,6 @@
 # -*- codeing = utf-8 -*-
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 import time
 import torch
@@ -72,8 +72,8 @@ def train(opt, device):
     # 构建训练集和验证集
     train_root_dir = '../dataset/train_images'
     val_root_dir = '../dataset/val_images'
-    train_dataloader, _ = create_dataloader(train_root_dir, img_size=img_size,shuffle=True, batch_size=batch_size, num_workers=workers)
-    val_dataloader, _ = create_dataloader(val_root_dir, img_size=img_size, shuffle=False, batch_size=batch_size, num_workers=workers) 
+    train_dataloader, _ = create_dataloader(train_root_dir, img_size=img_size,shuffle=True, batch_size=batch_size, num_workers=workers, mode='train')
+    val_dataloader, _ = create_dataloader(val_root_dir, img_size=img_size, shuffle=False, batch_size=batch_size, num_workers=workers, mode='val') 
 
 
     # 构建损失函数
@@ -201,8 +201,8 @@ def train(opt, device):
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--weights', type=str, default='./', help='initial weights path')
-    parser.add_argument('--weights', type=str, default='./runs/train/exp51/best.pt', help='initial weights path')
+    parser.add_argument('--weights', type=str, default='./', help='initial weights path')
+    # parser.add_argument('--weights', type=str, default='./runs/train/exp47/best.pt', help='initial weights path')
 
     parser.add_argument('--hyp', type=str, default='./data/hyps/hyp.scratch.s2anet.LAR1024.yaml', help='hyperparameters path')
 
@@ -214,8 +214,8 @@ def parse_opt(known=False):
     parser.add_argument('--epochs', type=int, default=48)
     parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
-    parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='SGD', help='optimizer')
-    parser.add_argument('--lr-scheduler', type=str, choices=['consine', 'linear', 'None'], default="consine", help='lr-scheduler')
+    parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='Adam', help='optimizer')
+    parser.add_argument('--lr-scheduler', type=str, choices=['consine', 'linear', 'None'], default="None", help='lr-scheduler')
 
     # 是否使用混合精度训练，automatic mixed-precision training
     parser.add_argument('--is_MAP', action='store_true', default=True)

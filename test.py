@@ -35,7 +35,7 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False,
 
 # 导入模型resnet50_true
 
-weights_path = "runs/train/exp52/last.pt"
+weights_path = "runs/train/exp55/best.pt"
 ckpt = torch.load(weights_path, map_location=device)
 resnet50 = Model().to(device)
 resnet50.load_state_dict(ckpt['model'].state_dict())
