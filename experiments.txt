@@ -49,16 +49,26 @@ exp37: exp30的基础, convnext_base, batch-size=32, softmax损失. best_accurac
 *exp38: exp30的基础, resnext50_32x4d, 使用了IMAGENET_V2预训练模型. best_accuracy:0.9644572526416907, best_epoch:42. 比exp30精度高
 exp39: exp30的基础, convnext_base, batch-size=32, softmax损失. best_accuracy:0.9545308997758566, best_epoch:38
 exp40: exp30的基础, convnext_small, batch-size=32, softmax损失
-exp41: exp30的基础, convnext_tiny, batch-size=32, softmax损失. best_accuracy:0.9599743836055076, best_epoch:47
+exp41: exp30的基础, convnext_tiny, batch-size=32, softmax损失. best_accuracy:0.9599743836055076, best_epoch:47. 上传:0.96116
 
 exp42: exp40的重复, 很不正常，因为损失根本不下降，但不管了. best_accuracy:0.8757604867114953, best_epoch:47
 exp43: exp30的基础, efficientnet_v2_s, batch-size=64, softmax损失. best_accuracy:0.9606147934678194, best_epoch:24. 
-* exp44: exp30的基础, efficientnet_b4, batch-size=64, softmax损失. best_accuracy:0.9663784822286263, best_epoch:38 精度高，但是训练很不稳定
-exp45: exp30的基础, efficientnet_b4, batch-size=64, softmax损失. best_accuracy:0.9660582772974704, best_epoch:32
+* exp44: exp30的基础, resnext50_32x4d, batch-size=64, softmax损失. best_accuracy:0.9663784822286263, best_epoch:38 精度高，但是训练很不稳定. best_epoch:42. 上传:0.96808
+exp45: exp30的基础, resnext50_32x4d, batch-size=64, softmax损失. best_accuracy:0.9660582772974704, best_epoch:32
 
-exp46: exp30的基础, resnet34, batch-size=32, softmax损失. best_accuracy:0.9650976625040025, best_epoch:42
+exp46: exp30的基础, resnext50_32x4d, batch-size=32, softmax损失. best_accuracy:0.9650976625040025, best_epoch:42
 
-* exp47: exp30的基础, efficientnet_b3, batch-size=64, softmax损失. best_accuracy:0.968299711815562, best_epoch:42
+* exp47: exp30的基础, efficientnet_b3, batch-size=64, softmax损失. best_accuracy:0.968299711815562, best_epoch:42. 上传:0.97885
 
-exp47: exp38的重复, 使用SGD和余弦衰减策略
+exp48: exp38的重复, 使用SGD和余弦衰减策略. 训练损失差不太多，但验证集的损失差好多，很奇怪
+
+* exp49: exp30的基础, efficientnet_b4, batch-size=32, softmax损失. best_accuracy:0.9737431956452129, best_epoch:37. 上传:best-0.97385，last-0.97654. 精度不如exp47
+
+exp50: exp30的基础, resnet34, batch-size=64, softmax损失. best_accuracy:0.9442843419788665, best_epoch:44
+
+exp51: exp47的基础, 使用SGD和余弦衰减策略. best_accuracy:0.9205891770733269, best_epoch:47. 精度比exp47差
+exp52: exp47的bset预训练模型,使用SGD和余弦衰减策略. best_accuracy:0.9715017611271214, best_epoch:32. 上传:0.97846, 还是不如exp47
+exp53: exp51的best预训练模型, 使用SGD和余弦衰减策略, 同时去掉nesterov, 并且添加weight_decay
+
+
 

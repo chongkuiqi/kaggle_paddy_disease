@@ -1,19 +1,18 @@
 # -*- codeing = utf-8 -*-
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
 import time
 import torch
+
 from torch.utils.tensorboard import SummaryWriter
 
 from Datasets import create_dataloader
 # from classify_model import ResNet as Model   
-from classify_model import ResNeXt as Model    
+# from classify_model import ResNeXt as Model    
 
-
+from classify_model import EfficientNet as Model    
 # from classify_model import ConvNext as Model    
-
-# from classify_model import EfficientNet as Model    
 
 # from classify_model import WideResNet as Model    
 # from classify_model import ResNet_C6_2 as Model    
@@ -62,8 +61,10 @@ def train(opt, device):
     model = Model().to(device)
     if weights.endswith('.pth') or weights.endswith('.pt'):
         ckpt = torch.load(weights, map_location='cpu')
-
+        print("导入网络模型参数")
         model.load_state_dict(ckpt['model'].float().state_dict())
+        
+        del ckpt
 
     # for k,v in model.named_parameters():
     #     print(k, v.requires_grad)        
@@ -85,16 +86,19 @@ def train(opt, device):
     if opt.optimizer == 'Adam':
         optimizer = Adam(model.parameters(), lr=learning_rate) # adjust beta1 to momentum
     else:
-        optimizer = SGD(model.parameters(), lr=learning_rate, momentum=0.9, nesterov=True)
+        optimizer = SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=0.0005)
     
 
     # Scheduler
-    lrf = 0.1
-    if opt.lr_scheduler == 'linear':
-        lf = lambda x: (1 - x / (epochs - 1)) * (1.0 - lrf) + lrf  # linear
+    if opt.lr_scheduler == 'None':
+        scheduler = None
     else:
-        lf = one_cycle(1, lrf, epochs)  # cosine 1->hyp['lrf']
-    scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)  # plot_lr_scheduler(optimizer, scheduler, epochs)
+        lrf = 0.1
+        if opt.lr_scheduler == 'linear':
+            lf = lambda x: (1 - x / (epochs - 1)) * (1.0 - lrf) + lrf  # linear
+        else:
+            lf = one_cycle(1, lrf, epochs)  # cosine 1->hyp['lrf']
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)  # plot_lr_scheduler(optimizer, scheduler, epochs)
     
 
     # tensorboard显示训练情况
@@ -106,7 +110,8 @@ def train(opt, device):
 
     # 训练参数设置
     train_step = 0
-    scheduler.last_epoch = -1  # do not move
+    # if scheduler:
+    #     scheduler.last_epoch = -1  # do not move
     scaler = amp.GradScaler(enabled=is_MAP)
     start_time = time.time()
     # 开始训练
@@ -149,7 +154,8 @@ def train(opt, device):
 
         lr = optimizer.param_groups[0]['lr']
         writer.add_scalar('lr/lr', lr, epoch)
-        scheduler.step()
+        if scheduler:
+            scheduler.step()
 
         # 进行验证
         mean_val_loss, total_accuracy, accuracy_classes = val(
@@ -195,8 +201,8 @@ def train(opt, device):
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='./', help='initial weights path')
-    # parser.add_argument('--weights', type=str, default=ROOT / 'runs/train/exp283/weights/best.pt', help='initial weights path')
+    # parser.add_argument('--weights', type=str, default='./', help='initial weights path')
+    parser.add_argument('--weights', type=str, default='./runs/train/exp51/best.pt', help='initial weights path')
 
     parser.add_argument('--hyp', type=str, default='./data/hyps/hyp.scratch.s2anet.LAR1024.yaml', help='hyperparameters path')
 
@@ -209,7 +215,7 @@ def parse_opt(known=False):
     parser.add_argument('--batch-size', type=int, default=64, help='total batch size for all GPUs, -1 for autobatch')
     parser.add_argument('--imgsz', '--img', '--img-size', type=tuple, default=(320,240), help='train, val image size (pixels)')
     parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='SGD', help='optimizer')
-    parser.add_argument('--lr-scheduler', type=str, choices=['consine', 'linear'], default="consine", help='lr-scheduler')
+    parser.add_argument('--lr-scheduler', type=str, choices=['consine', 'linear', 'None'], default="consine", help='lr-scheduler')
 
     # 是否使用混合精度训练，automatic mixed-precision training
     parser.add_argument('--is_MAP', action='store_true', default=True)

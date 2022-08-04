@@ -16,10 +16,10 @@ class ResNet(nn.Module):
         
         self.num_classes = len(self.classes_name)
 
-        net = torchvision.models.resnet50(weights='IMAGENET1K_V2')
-        self.new_fc = nn.Linear(2048, self.num_classes)
-        # net = torchvision.models.resnet34(weights='IMAGENET1K_V1')
-        # self.new_fc = nn.Linear(1024, self.num_classes)
+        # net = torchvision.models.resnet50(weights='IMAGENET1K_V2')
+        # self.new_fc = nn.Linear(2048, self.num_classes)
+        net = torchvision.models.resnet34(weights='IMAGENET1K_V1')
+        self.new_fc = nn.Linear(512, self.num_classes)
 
         self.net = nn.Sequential(
             net.conv1,
@@ -54,7 +54,6 @@ class ResNeXt(nn.Module):
         self.num_classes = len(self.classes_name)
         
         net = torchvision.models.resnext50_32x4d(weights='IMAGENET1K_V2')
-        # self.net = torchvision.models.resnext101_32x8d(pretrained=True)
         self.new_fc = nn.Linear(2048, self.num_classes)
         self.net = nn.Sequential(
             net.conv1,
@@ -87,10 +86,10 @@ class ConvNext(nn.Module):
         
         # net = torchvision.models.convnext_base(weights='IMAGENET1K_V1')
         # self.new_fc = nn.Linear(1024, self.num_classes)
-        net = torchvision.models.convnext_small(weights='IMAGENET1K_V1')
-        self.new_fc = nn.Linear(768, self.num_classes)
-        # net = torchvision.models.convnext_tiny(weights='IMAGENET1K_V1')
+        # net = torchvision.models.convnext_small(weights='IMAGENET1K_V1')
         # self.new_fc = nn.Linear(768, self.num_classes)
+        net = torchvision.models.convnext_tiny(weights='IMAGENET1K_V1')
+        self.new_fc = nn.Linear(768, self.num_classes)
         
         self.net = nn.Sequential(
             net.features,
@@ -115,6 +114,8 @@ class EfficientNet(nn.Module):
         
         # net = torchvision.models.efficientnet_v2_s(weights='IMAGENET1K_V1')
         # self.new_fc = nn.Linear(1280, self.num_classes)
+        # net = torchvision.models.efficientnet_b4(weights='IMAGENET1K_V1')
+        # self.new_fc = nn.Linear(1792, self.num_classes)
         net = torchvision.models.efficientnet_b3(weights='IMAGENET1K_V1')
         self.new_fc = nn.Linear(1536, self.num_classes)
         

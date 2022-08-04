@@ -12,6 +12,9 @@ from torch import nn
 from Datasets import TestData, id_to_label
 # from classify_model import ResNet as Model   # 
 # from classify_model import ResNeXt as Model   # 
+
+# from classify_model import ConvNext as Model   # 
+
 from classify_model import EfficientNet as Model   # 
 
 from torch.utils.data import DataLoader
@@ -32,7 +35,7 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False,
 
 # 导入模型resnet50_true
 
-weights_path = "runs/train/exp47/best.pt"
+weights_path = "runs/train/exp52/last.pt"
 ckpt = torch.load(weights_path, map_location=device)
 resnet50 = Model().to(device)
 resnet50.load_state_dict(ckpt['model'].state_dict())
